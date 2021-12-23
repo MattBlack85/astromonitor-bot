@@ -12,6 +12,7 @@ python-telegram-bot = "*"
 pytest = "*"
 ipython = "*"
 ipdb = "*"
+factory-boy = "*"
 
 [requires]
 python_version = "3.10"

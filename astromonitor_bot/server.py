@@ -1,7 +1,7 @@
 import falcon.asgi
 
 from astromonitor_bot.bot import bot, start_bot
-from astromonitor_bot.database import connection
+from astromonitor_bot.database.connection import connection
 
 
 class AstroMonitor:
