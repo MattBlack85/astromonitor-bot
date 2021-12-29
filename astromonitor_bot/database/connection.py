@@ -4,7 +4,6 @@ from astromonitor_bot.database.factory import db_factory
 
 
 class _Connection:
-
     def execute(self, query, args=None):
         with sqlite3.connect(db_factory()) as conn:
             cursor = conn.cursor()
@@ -25,5 +24,6 @@ class _Connection:
 
     def count_tokens(self):
         return self.execute('SELECT COUNT (*) from api_tokens').fetchone()
-        
+
+
 connection = _Connection()
