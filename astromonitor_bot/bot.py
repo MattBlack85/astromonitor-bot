@@ -2,15 +2,11 @@ import logging
 import os
 
 from telegram.bot import Bot
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import CommandHandler, Updater
 
 from astromonitor_bot import handlers
 
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 TOKEN = os.environ['TELEGRAM_TOKEN']
 
