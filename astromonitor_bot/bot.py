@@ -23,6 +23,7 @@ def start_bot() -> None:
     # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler('help', handlers.help_command))
     dispatcher.add_handler(CommandHandler('register', handlers.register))
+    dispatcher.add_handler(CommandHandler('delete_me', handlers.delete_user_tokens))
 
     # Start the Bot
     updater.start_polling()
