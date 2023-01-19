@@ -1,21 +1,41 @@
-from astromonitor_bot.database.connection import connection
-from astromonitor_bot.tokens import delete_all_user_tokens
+import pytest
+from sqlalchemy import select
+
+from astromonitor_bot.database import session
+from astromonitor_bot.database.models import User
+from astromonitor_bot.tokens import delete_user
 from tests.factories import ApiTokenFactory
 
 
-def test_delete_all_tokens():
-    assert connection.count_tokens()[0] == 0
+@pytest.mark.asyncio
+async def test_delete_all_tokens(alembic_engine):
+    async with session() as s:
+        query = select(User)
+        users = await s.execute(query)
+
+    assert len(users.all()) == 0
 
     user_1_id = 192387
     user_2_id = 691263
 
-    for _ in range(5):
+    async with session() as s:
         obj = ApiTokenFactory(user_id=user_1_id)
-        connection.execute("INSERT INTO api_tokens VALUES (?, ?)", (obj.api_token, obj.user_id))
-    for _ in range(5):
+        s.add(User(api_token=obj.api_token, id=obj.user_id))
         obj = ApiTokenFactory(user_id=user_2_id)
-        connection.execute("INSERT INTO api_tokens VALUES (?, ?)", (obj.api_token, obj.user_id))
+        s.add(User(api_token=obj.api_token, id=obj.user_id))
+        await s.commit()
 
-    delete_all_user_tokens(user_1_id)
+    async with session() as s:
+        query = select(User)
+        users = await s.execute(query)
 
-    assert connection.count_tokens()[0] == 5
+    assert len(users.all()) == 2
+
+    async with session() as s:
+        await delete_user(user_1_id)
+
+    async with session() as s:
+        query = select(User)
+        users = await s.execute(query)
+
+    assert len(users.all()) == 1

@@ -1,29 +1,41 @@
-import falcon.asgi
+import os
 
-from astromonitor_bot.bot import bot, start_bot
-from astromonitor_bot.database.connection import connection
+import falcon.asgi
+from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
+from telegram import Bot
+
+from astromonitor_bot.database import session
+from astromonitor_bot.database.models import User
+
+TOKEN = os.environ['TELEGRAM_TOKEN']
+bot = Bot(TOKEN)
 
 
 class AstroMonitor:
     async def on_post(self, req, resp, api_token):
         # check the token exists in the DB
         # fire a request to telegram to notify the user
-        query = connection.execute(
-            """
-            SELECT api_token, user_id from api_tokens WHERE api_token = '%s'
-            """
-            % api_token
-        ).fetchone()
-
-        if query:
-            _, user_id = query
-            bot.send_message(user_id, 'Kstars crashed! Please check it')
-            resp.status = falcon.HTTP_200
-        else:
-            resp.status = falcon.HTTP_404
+        async with session() as s:
+            try:
+                query = select(User).filter_by(api_token=str(api_token))
+                q = await s.scalars(query)
+                user = q.one()
+                await bot.send_message(user.id, 'Kstars crashed! Please check it')
+                resp.status = falcon.HTTP_200
+            except NoResultFound:
+                resp.status = falcon.HTTP_404
 
 
-connection.start()
+class Backup:
+    async def on_post(self, req, resp, api_token):
+        body = await req.stream.read()
+
+        with open("/tmp/falcon_read.tar", "wb") as f:
+            f.write(body)
+        resp.status = falcon.HTTP_200
+
+
 app = falcon.asgi.App()
 app.add_route('/hook/{api_token:uuid}', AstroMonitor())
-start_bot()
+app.add_route('/backup/db/{api_token:uuid}', Backup())

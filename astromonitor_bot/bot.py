@@ -1,38 +1,40 @@
+import asyncio
 import logging
 import os
+import sys
 
-from telegram.bot import Bot
-from telegram.ext import CommandHandler, Updater
+sys.path.append("../")  # NOQA
 
-from astromonitor_bot import handlers
+import uvicorn  # NOQA
+from telegram import Bot  # NOQA
+from telegram.ext import Application, CommandHandler  # NOQA
+
+from astromonitor_bot import handlers  # NOQA
+from astromonitor_bot.server import app  # NOQA
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 TOKEN = os.environ['TELEGRAM_TOKEN']
 
-bot = Bot(TOKEN)
+
+telegram_app = Application.builder().token(TOKEN).build()
 
 
-def start_bot() -> None:
-    # Create the Updater and pass it your bot's token.
-    updater = Updater(TOKEN)
-
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
-
+async def start() -> None:
     # on different commands - answer in Telegram
-    dispatcher.add_handler(CommandHandler('help', handlers.help_command))
-    dispatcher.add_handler(CommandHandler('register', handlers.register))
-    dispatcher.add_handler(CommandHandler('delete_me', handlers.delete_user_tokens))
+    telegram_app.add_handler(CommandHandler('help', handlers.help_command))
+    telegram_app.add_handler(CommandHandler('register', handlers.register))
+    telegram_app.add_handler(CommandHandler('delete_me', handlers.delete_user_token))
 
-    # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
-    # updater.idle()
+    webserver = uvicorn.Server(config=uvicorn.Config(app, host="127.0.0.1", port=9050, log_level="info"))
+    # Start the updater for the bot and the falcon API
+    async with telegram_app:
+        await telegram_app.start()
+        await telegram_app.updater.start_polling()
+        await webserver.serve()
+        await telegram_app.updater.stop()
+        await telegram_app.stop()
 
 
 if __name__ == '__main__':
-    start_bot()
+    asyncio.run(start())
