@@ -1,16 +1,30 @@
 import uuid
 
-from astromonitor_bot.database.connection import connection
+from astromonitor_bot.database import session
+from astromonitor_bot.database.models import User
 
 
-def generate_api_token(user_id: int) -> str:
-    # Generate a random UUID4 that will serve as API TOKEN
-    api_token = str(uuid.uuid4())
-
+async def generate_api_token(user_id: int) -> str:
     # Store it into the database together with the user id
-    connection.execute("INSERT INTO api_tokens VALUES (?, ?)", (api_token, user_id))
+    async with session() as s:
+        # Check first if we have already such a user, a user will always
+        # have 1 token
+        user = await s.get(User, user_id)
+
+        if not user:
+            # Generate a random UUID4 that will serve as API TOKEN
+            api_token = str(uuid.uuid4())
+            user = User(api_token=api_token, id=user_id)
+            s.add(user)
+            await s.commit()
+        else:
+            api_token = user.api_token
+
     return api_token
 
 
-def delete_all_user_tokens(user_id: int) -> None:
-    connection.execute('DELETE from api_tokens WHERE user_id = "%s"' % user_id)
+async def delete_user(user_id: int) -> None:
+    async with session() as s:
+        user = await s.get(User, user_id)
+        await s.delete(user)
+        await s.commit()

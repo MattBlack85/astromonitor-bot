@@ -10,6 +10,7 @@ PLATFORM := $(shell uname -s)
 	install-precommit \
 	isort \
 	isort-check \
+	migrate \
 	nuke-venv \
 	run-tests \
 
@@ -30,7 +31,7 @@ cheeseshop:
 	fi
 
 flake8:
-	@$(ACTIVATE_VENV) flake8 .
+	@$(ACTIVATE_VENV) flake8 --exclude astromonitor_bot/database/alembic/versions .
 
 install-precommit:
 	@$(ACTIVATE_VENV) pre-commit install
@@ -41,6 +42,9 @@ isort:
 isort-check:
 	@$(ACTIVATE_VENV) isort . --check-only --tc -q
 
+migrate:
+	@cd astromonitor_bot/database && $(ACTIVATE_VENV) alembic upgrade head
+
 nuke-venv:
 	@pipenv --rm;\
 	EXIT_CODE=$$?;\
@@ -49,5 +53,5 @@ nuke-venv:
 	fi
 
 run-tests:
-	@TEST=true $(ACTIVATE_VENV) coverage run -m pytest -s $(EXTRA_ARGS)
+	@TESTING=1 $(ACTIVATE_VENV) coverage run -m pytest -s $(EXTRA_ARGS)
 	@$(ACTIVATE_VENV) coverage report
