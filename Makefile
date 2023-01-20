@@ -43,7 +43,7 @@ isort-check:
 	@$(ACTIVATE_VENV) isort . --check-only --tc -q
 
 migrate:
-	@cd astromonitor_bot/database && $(ACTIVATE_VENV) alembic upgrade head
+	@$(ACTIVATE_VENV) alembic upgrade head
 
 nuke-venv:
 	@pipenv --rm;\
@@ -55,3 +55,6 @@ nuke-venv:
 run-tests:
 	@TESTING=1 $(ACTIVATE_VENV) coverage run -m pytest -s $(EXTRA_ARGS)
 	@$(ACTIVATE_VENV) coverage report
+
+start-app: migrate
+	@cd astromonitor_bot && $(ACTIVATE_VENV) python bot.py
