@@ -9,7 +9,7 @@ import sqlalchemy
 @pytest.fixture(scope="session", autouse=True)
 def apply_migrations():
     here = Path(".")
-    ini_path = here / "astromonitor_bot/database/alembic.ini"
+    ini_path = here / "alembic.ini"
     config = alembic.config.Config(ini_path.absolute())
     alembic.command.upgrade(config, "head")
     yield

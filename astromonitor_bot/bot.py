@@ -26,7 +26,7 @@ async def start() -> None:
     telegram_app.add_handler(CommandHandler('register', handlers.register))
     telegram_app.add_handler(CommandHandler('delete_me', handlers.delete_user_token))
 
-    webserver = uvicorn.Server(config=uvicorn.Config(app, host="127.0.0.1", port=9050, log_level="info"))
+    webserver = uvicorn.Server(config=uvicorn.Config(app, host="0.0.0.0", port=9050, log_level="info"))
     # Start the updater for the bot and the falcon API
     async with telegram_app:
         await telegram_app.start()
