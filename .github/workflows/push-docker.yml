@@ -55,8 +55,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}/${{ github.ref }}
-            ${{ env.IMAGE_NAME }}/latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           platforms: linux/amd64,linux/arm64
           outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=astromonitor bot multi arch image
           
