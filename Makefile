@@ -53,7 +53,7 @@ nuke-venv:
 	fi
 
 run-tests:
-	@TESTING=1 $(ACTIVATE_VENV) coverage run -m pytest -s $(EXTRA_ARGS)
+	@TESTING=1 TELEGRAM_TOKEN=AvErYsEcReTtOkEn $(ACTIVATE_VENV) coverage run -m pytest -s $(EXTRA_ARGS)
 	@$(ACTIVATE_VENV) coverage report
 
 start-app: migrate
