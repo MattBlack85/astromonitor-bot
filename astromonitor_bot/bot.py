@@ -22,6 +22,7 @@ telegram_app = Application.builder().token(TOKEN).build()
 
 async def start() -> None:
     # on different commands - answer in Telegram
+    telegram_app.add_handler(CommandHandler('start', handlers.start_command))
     telegram_app.add_handler(CommandHandler('help', handlers.help_command))
     telegram_app.add_handler(CommandHandler('register', handlers.register))
     telegram_app.add_handler(CommandHandler('delete_me', handlers.delete_user_token))
