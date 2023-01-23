@@ -8,7 +8,9 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     api_token = Column(String, nullable=False)
-    backup_id = relationship("Backup", uselist=False, back_populates="user")
+    backup = relationship(
+        "Backup", uselist=False, back_populates="user", cascade="all, delete", passive_deletes=True, lazy="selectin"
+    )
 
 
 class Backup(Base):
@@ -16,4 +18,4 @@ class Backup(Base):
     id = Column(Integer, primary_key=True)
     content = Column(BINARY, nullable=False)
     user_id = mapped_column(ForeignKey("users.id"), nullable=False)
-    user = relationship("User", back_populates="backup_id")
+    user = relationship("User", back_populates="backup")
