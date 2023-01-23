@@ -64,5 +64,5 @@ To see what commands can be used with astromonitor type in the terminal on the c
 
 
 For any issue please reach out to me directly at matto.astro@gmail.com
-        """
+        """  # NOQA
     )
