@@ -38,6 +38,19 @@ async def test_backup(client, user_999, user_999_token):
                 response = await c.simulate_post(f"/backup/db/{user_999_token}", body=tar.read())
                 assert response.status_code == 200, response.content
 
+    # Generate another fake tar archive
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(b"TEST-SECOND")
+        f.seek(0)
+
+        with tarfile.open("sample.tar", "w") as tar:
+            tar.add(f.name)
+
+        with open("sample.tar", "r") as tar:
+            async with client as c:
+                response = await c.simulate_post(f"/backup/db/{user_999_token}", body=tar.read())
+                assert response.status_code == 200, response.content
+
     # Retrieve the tar and check it
     async with client as c:
         response = await c.simulate_get(f"/backup/db/{user_999_token}")

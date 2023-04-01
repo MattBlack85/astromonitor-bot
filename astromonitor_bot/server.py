@@ -36,8 +36,14 @@ class BackupApi:
                 query = select(User).filter_by(api_token=str(api_token))
                 q = await s.scalars(query)
                 user = q.one()
-                obj = Backup(content=body, user_id=user.id)
-                s.add(obj)
+
+                # if there is no backup create one
+                if user.backup is None:
+                    obj = Backup(content=body, user_id=user.id)
+                    s.add(obj)
+                else:
+                    user.backup.content = body
+
                 await s.commit()
                 resp.status = falcon.HTTP_200
             except NoResultFound:
