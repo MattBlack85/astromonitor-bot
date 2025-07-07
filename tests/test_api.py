@@ -6,24 +6,19 @@ import uuid
 import pytest
 
 
-@pytest.mark.asyncio
 async def test_firing_hook_random_uuid_404(client):
     async with client as c:
         response = await c.simulate_post(f"/hook/{uuid.uuid4()}")
         assert response.status_code == 404
 
 
-@pytest.mark.asyncio
 async def test_firing_hook_200(client, user_999, user_999_token):
-    await user_999
     async with client as c:
         response = await c.simulate_post(f"/hook/{user_999_token}")
         assert response.status_code == 200, response.content
 
 
-@pytest.mark.asyncio
 async def test_backup(client, user_999, user_999_token):
-    await user_999
 
     # Generate a fake tar archive
     with tempfile.NamedTemporaryFile() as f:

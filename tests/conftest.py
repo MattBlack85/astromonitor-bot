@@ -1,9 +1,11 @@
+import asyncio
 import os
 import unittest.mock as mock
 from pathlib import Path
 
 import alembic
 import pytest
+import pytest_asyncio
 import sqlalchemy
 from falcon import testing
 
@@ -42,7 +44,7 @@ def user_999_token():
 
 
 @pytest.fixture
-async def user_999(request, event_loop, alembic_engine, user_999_token):
+async def user_999(request, alembic_engine, user_999_token):
     from astromonitor_bot.database import session
     from astromonitor_bot.database.models import User
     from astromonitor_bot.tokens import delete_user
@@ -52,7 +54,7 @@ async def user_999(request, event_loop, alembic_engine, user_999_token):
             async with session():
                 await delete_user(999)
 
-        event_loop.run_until_complete(drop())
+        asyncio.new_event_loop().run_until_complete(drop())
 
     async with session() as s:
         user = User(api_token=user_999_token, id=999)

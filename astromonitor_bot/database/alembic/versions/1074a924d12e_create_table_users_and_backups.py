@@ -1,10 +1,11 @@
 """Create table users and backups
 
 Revision ID: 1074a924d12e
-Revises: 
+Revises:
 Create Date: 2023-01-19 10:00:14.602745
 
 """
+
 import sqlalchemy as sa
 from alembic import op
 

@@ -7,7 +7,6 @@ from astromonitor_bot.tokens import delete_user
 from tests.factories import ApiTokenFactory
 
 
-@pytest.mark.asyncio
 async def test_delete_all_tokens(alembic_engine):
     async with session() as s:
         query = select(User)
